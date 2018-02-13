@@ -20,3 +20,9 @@ export const createUser = ({ name, email, password, dob, phone }) => {
     newUser.setPassword(password);
     return newUser.save();
 };
+
+export const findUserByEmail = Email => {
+    return User.findOne({
+        Email
+    });
+};
