@@ -1,0 +1,24 @@
+{
+  "name": "learnest",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon --exec babel-node -- ./server-app.js"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "bcrypt": "^1.0.3",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "dotenv": "^4.0.0",
+    "express": "~4.15.2",
+    "mongoose": "^5.0.1",
+    "mongoose-unique-validator": "^2.0.0",
+    "morgan": "~1.8.1",
+    "nodemon": "^1.14.11",
+    "path": "^0.12.7",
+    "validator": "^8.2.0"
+  }
+}
