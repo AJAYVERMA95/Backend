@@ -1,25 +1,21 @@
 import express from "express";
+import passport from "passport";
 const router = express.Router();
 
 import { findUserByEmail, createUser } from "../mongoDB/query";
+require("./../config/passport");
 
-router.post("/auth/signup", (req, res, next) => {
-    const { name, email, password, dob, phone } = req.body;
-    createUser({
-        name,
-        email,
-        password,
-        dob,
-        phone
+router.post(
+    "/auth/signup",
+    passport.authenticate("local.signup", {
+        successRedirect: "/api/auth/sucess"
     })
-        .then(userRecord => {
-            res.status(200).json({
-                user: userRecord
-            });
-        })
-        .catch(error => {
-            next(error);
-        });
+);
+
+router.get("/auth/sucess", (req, res, next) => {
+    // console.log(req.user);
+
+    res.status(200).json({ message: "sucess" });
 });
 
 router.post("/auth/login", (req, res, next) => {

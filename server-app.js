@@ -3,6 +3,8 @@ import path from "path";
 import morganLog from "morgan";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import session from "express-session";
+import passport from "passport";
 
 import api from "./routes/api";
 
@@ -11,8 +13,17 @@ const app = express();
 app.set("PORT", process.env.PORT);
 
 app.use(morganLog("dev"));
+app.use(
+    session({
+        secret: process.env.SESSION_KEY,
+        resave: false,
+        saveUninitialized: false
+    })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use("/api", api);
 
 // catch 404 and forward to error handler
