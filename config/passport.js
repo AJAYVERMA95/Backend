@@ -1,25 +1,19 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import User from "./../mongoDB/models/user";
-import { createUser } from "./../mongoDB/query";
+import { createUser, findUserByEmail } from "./../mongoDB/query";
 
 passport.serializeUser(function(user, done) {
-    // console.log("in serialize");
-    // console.log(user);
-
-    done(null, user._id);
+    return done(null, user._id);
 });
 
 passport.deserializeUser(function(userId, done) {
-    // console.log("in DEserialize");
-    // console.log(userId);
-
     User.findById(userId)
         .then(user => {
-            done(null, user);
+            return done(null, user);
         })
         .catch(error => {
-            done(error);
+            return done(error);
         });
 });
 
@@ -30,10 +24,23 @@ const LocalSignUpStrategy = new LocalStrategy(
         passReqToCallback: true
     },
     (req, email, password, done) => {
+        req
+            .checkBody("email", "Invalid Email...")
+            .notEmpty()
+            .isEmail();
+        req.checkBody("password", "Empty Password...").notEmpty();
+        req.checkBody("name", "Empty Name...").notEmpty();
+        const validationErrors = req.validationErrors();
+
+        if (validationErrors) {
+            var validationErrorMssgs = [];
+            validationErrors.forEach(e => {
+                validationErrorMssgs.push(e.msg);
+            });
+            return done(null, false, req.flash("error", validationErrorMssgs));
+        }
+
         const { name, dob, phone } = req.body;
-        // console.log("req.body :");
-        // console.log(req.body);
-        // console.log(req.user);
 
         createUser({
             name,
@@ -43,15 +50,49 @@ const LocalSignUpStrategy = new LocalStrategy(
             phone
         })
             .then(userRecord => {
-                // console.log("userRecord :");
-                // console.log(userRecord);
-
-                done(null, userRecord);
+                return done(null, userRecord);
             })
             .catch(error => {
-                done(error);
+                return done(error);
             });
     }
 );
 
-passport.use("local.signup", LocalSignUpStrategy);
+const LocalLoginStrategy = new LocalStrategy(
+    {
+        usernameField: "email",
+        passwordField: "password",
+        passReqToCallback: true
+    },
+    (req, email, password, done) => {
+        req
+            .checkBody("email", "Invalid Email...")
+            .notEmpty()
+            .isEmail();
+        req.checkBody("password", "Empty Password...").notEmpty();
+        const validationErrors = req.validationErrors();
+        if (validationErrors) {
+            var validationErrorMssgs = [];
+            validationErrors.forEach(e => {
+                validationErrorMssgs.push(e.msg);
+            });
+            return done(null, false, req.flash("error", validationErrorMssgs));
+        }
+
+        findUserByEmail(email)
+            .then(userRecord => {
+                if (userRecord && userRecord.isValidPassword(password))
+                    return done(null, userRecord);
+                else
+                    return done(null, false, {
+                        message: "Invalid credentials.."
+                    });
+            })
+            .catch(error => {
+                return done(error);
+            });
+    }
+);
+
+passport.use("local-signup", LocalSignUpStrategy);
+passport.use("local-login", LocalLoginStrategy);

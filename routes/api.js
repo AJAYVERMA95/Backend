@@ -2,38 +2,38 @@ import express from "express";
 import passport from "passport";
 const router = express.Router();
 
-import { findUserByEmail, createUser } from "../mongoDB/query";
+import { findUserByEmail } from "../mongoDB/query";
 require("./../config/passport");
 
 router.post(
     "/auth/signup",
-    passport.authenticate("local.signup", {
-        successRedirect: "/api/auth/sucess"
-    })
+    passport.authenticate("local-signup", {
+        failureRedirect: "/api/auth/failure",
+        failureFlash: true
+    }),
+    (req, res, next) => {
+        res.status(200).json({ message: "successfully signed up." });
+    }
 );
 
-router.get("/auth/sucess", (req, res, next) => {
-    // console.log(req.user);
+router.get("/auth/failure", (req, res, next) => {
+    const validationErrors = req.flash("error");
+    // console.log(req.session);
 
-    res.status(200).json({ message: "sucess" });
+    // console.log(validationErrors);
+
+    res.status(400).json({ message: validationErrors });
 });
 
-router.post("/auth/login", (req, res, next) => {
-    const { email, password } = req.body;
-    findUserByEmail(email)
-        .then(aUser => {
-            if (aUser && aUser.isValidPassword(password))
-                res.status(200).json({
-                    user: aUser
-                });
-            else
-                res.status(400).json({
-                    message: "INVALID CREDENTIALS...!!"
-                });
-        })
-        .catch(error => {
-            next(error);
-        });
-});
+router.post(
+    "/auth/login",
+    passport.authenticate("local-login", {
+        failureRedirect: "/api/auth/failure",
+        failureFlash: true
+    }),
+    (req, res, next) => {
+        res.status(200).json({ message: "successfully logged In.." });
+    }
+);
 
 export default router;

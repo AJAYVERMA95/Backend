@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import session from "express-session";
 import passport from "passport";
+import flash from "connect-flash";
+import validator from "express-validator";
 
 import api from "./routes/api";
 
@@ -15,13 +17,19 @@ app.set("PORT", process.env.PORT);
 app.use(morganLog("dev"));
 app.use(
     session({
+        name: process.env.COOKIE_NAME,
         secret: process.env.SESSION_KEY,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 5000
+        }
     })
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(validator());
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api", api);
@@ -44,7 +52,7 @@ app.use((err, req, res, next) => {
         res.locals.error = err;
     }
     // send error json
-    res.status(err.status || 500).json({ message: err.message, error: err });
+    res.status(500).json({ message: err.message, error: err });
 });
 
 app.listen(app.get("PORT"), () => {
