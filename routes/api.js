@@ -26,7 +26,12 @@ router.post(
     }
 );
 
-router.get("/auth/facebook", passport.authenticate("facebook"));
+router.get(
+    "/auth/facebook",
+    passport.authenticate("facebook", {
+        scope: ["public_profile", "email"]
+    })
+);
 
 router.get(
     "/auth/facebook/callback",

@@ -120,7 +120,7 @@ const FBStrategy = new FaceBookStrategy(
         clientSecret: process.env.FB_APP_KEY,
         callbackURL:
             process.env.REDIRECT_DOMAIN + "/api/auth/facebook/callback",
-        profileFields: ["id", "emails", "name"],
+        profileFields: ["id", "email", "name"],
         passReqToCallback: true
     },
     (req, accessToken, refreshToken, profile, done) => {
