@@ -1,7 +1,17 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as FaceBookStrategy } from "passport-facebook";
+import { OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
+
 import User from "./../mongoDB/models/user";
-import { createUser, findUserByEmail } from "./../mongoDB/query";
+import {
+    createUser,
+    findUserByEmail,
+    findUserByFacebookId,
+    createUserByFB,
+    findUserByGoogleId,
+    createUserByGoogle
+} from "./../mongoDB/query";
 
 passport.serializeUser(function(user, done) {
     return done(null, user._id);
@@ -41,16 +51,26 @@ const LocalSignUpStrategy = new LocalStrategy(
         }
 
         const { name, dob, phone } = req.body;
-
-        createUser({
-            name,
-            email,
-            password,
-            dob,
-            phone
-        })
+        findUserByEmail(email)
             .then(userRecord => {
-                return done(null, userRecord);
+                if (userRecord)
+                    return done(null, false, {
+                        message: "Email already in use..."
+                    });
+                else
+                    createUser({
+                        name,
+                        email,
+                        password,
+                        dob,
+                        phone
+                    })
+                        .then(userRecord => {
+                            return done(null, userRecord);
+                        })
+                        .catch(error => {
+                            return done(error);
+                        });
             })
             .catch(error => {
                 return done(error);
@@ -94,5 +114,63 @@ const LocalLoginStrategy = new LocalStrategy(
     }
 );
 
+const FBStrategy = new FaceBookStrategy(
+    {
+        clientID: process.env.FB_APP_ID,
+        clientSecret: process.env.FB_APP_KEY,
+        callbackURL:
+            process.env.REDIRECT_DOMAIN + "/api/auth/facebook/callback/",
+        profileFields: ["id", "emails", "name"],
+        passReqToCallback: true
+    },
+    (req, accessToken, refreshToken, profile, done) => {
+        findUserByFacebookId(profile.id)
+            .then(userRecord => {
+                if (userRecord) return done(null, userRecord);
+                else {
+                    createUserByFB(profile, accessToken)
+                        .then(Record => {
+                            return done(null, Record);
+                        })
+                        .catch(error => {
+                            return done(error);
+                        });
+                }
+            })
+            .catch(error => {
+                return done(error);
+            });
+    }
+);
+
+const GoogleAuthStrategy = new GoogleStrategy(
+    {
+        clientID: process.env.GOOGLE_APP_ID,
+        clientSecret: process.env.GOOGLE_APP_KEY,
+        callbackURL: process.env.REDIRECT_DOMAIN + "/api/auth/google/callback",
+        passReqToCallback: true
+    },
+    (req, accessToken, refreshToken, profile, done) => {
+        findUserByGoogleId(profile.id)
+            .then(userRecord => {
+                if (userRecord) return done(null, userRecord);
+                else {
+                    createUserByGoogle(profile, accessToken)
+                        .then(Record => {
+                            return done(null, Record);
+                        })
+                        .catch(error => {
+                            return done(error);
+                        });
+                }
+            })
+            .catch(error => {
+                return done(error);
+            });
+    }
+);
+
 passport.use("local-signup", LocalSignUpStrategy);
 passport.use("local-login", LocalLoginStrategy);
+passport.use("facebook", FBStrategy);
+passport.use("google", GoogleAuthStrategy);

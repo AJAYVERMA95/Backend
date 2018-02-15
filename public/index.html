@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Learnest</title>
+</head>
+
+<body>
+    <div>
+        <h2> Registration Form </h2>
+        <form action="/api/auth/signup" method="POST">
+            <div>
+                <input type="text" name="name" placeholder="Name" required="required">
+            </div>
+            <br>
+            <div>
+                <input type="email" name="email" placeholder="Email" required="required">
+            </div>
+            <br>
+            <div>
+                <input type="text" name="phone" placeholder="Phone">
+            </div>
+            <br>
+            <div>
+                <input type="text" name="dob" placeholder="Date Of Birth">
+            </div>
+            <br>
+            <div>
+                <input type="password" name="password" placeholder="Password" required="required">
+            </div>
+            <br>
+            <br>
+            <div>
+                <input type="submit" value="Register">
+            </div>
+            <br>
+        </form>
+
+    </div>
+
+    <div>
+        <a href="/api/auth/google">
+            CLICK to Login or Register with GOOGLE...</a>
+
+    </div>
+    <br>
+    <div>
+        <a href="/api/auth/facebook">
+            CLICK to Login or Register with FACEBOOK...</a>
+
+    </div>
+
+    <div>
+        <h2> Login Form </h2>
+        <form action="/api/auth/login" method="POST">
+            <br>
+            <div>
+                <input type="email" name="email" placeholder="Email" required="required">
+            </div>
+            <br>
+            <div>
+                <input type="password" name="password" placeholder="Password" required="required">
+            </div>
+            <br>
+            <br>
+            <div>
+                <input type="submit" value="Login">
+            </div>
+            <br>
+        </form>
+
+    </div>
+</body>
+
+</html>

@@ -33,6 +33,12 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api", api);
+app.get("/privacy/policy", (req, res, next) => {
+    res.sendFile(path.join(__dirname, "/public", "/privacy-policy.html"));
+});
+app.get("/", (req, res, next) => {
+    res.sendFile(path.join(__dirname, "/public", "/index.html"));
+});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

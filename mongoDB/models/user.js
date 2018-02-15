@@ -1,34 +1,39 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import uniqueValidator from "mongoose-unique-validator";
+// import uniqueValidator from "mongoose-unique-validator";
 
 const UserSchema = new mongoose.Schema({
-    Name: {
-        type: String,
-        required: true
+    Local: {
+        Name: String,
+        Email: {
+            type: String,
+            lowercase: true
+        },
+        PasswordHash: String,
+        Phone: String,
+        DOB: String
     },
-    Email: {
-        type: String,
-        required: true,
-        lowercase: true,
-        index: true,
-        unique: true
+    Facebook: {
+        Id: String,
+        Token: String,
+        Name: String,
+        Email: String
     },
-    PasswordHash: {
-        type: String,
-        required: true
-    },
-    Phone: String,
-    DOB: String
+    Google: {
+        Id: String,
+        Email: String,
+        Name: String,
+        Token: String
+    }
 });
 
 UserSchema.methods.isValidPassword = function(password) {
-    return bcrypt.compareSync(password, this.PasswordHash);
+    return bcrypt.compareSync(password, this.Local.PasswordHash);
 };
 
 UserSchema.methods.setPassword = function(password) {
-    this.PasswordHash = bcrypt.hashSync(password, 10);
+    this.Local.PasswordHash = bcrypt.hashSync(password, 10);
 };
 
-UserSchema.plugin(uniqueValidator);
+// UserSchema.plugin(uniqueValidator);
 export default mongoose.model("User", UserSchema);
