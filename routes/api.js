@@ -29,11 +29,6 @@ router.post(
 router.get("/auth/facebook", passport.authenticate("facebook"));
 
 router.get(
-    "/auth/google",
-    passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-router.get(
     "/auth/facebook/callback",
     passport.authenticate("facebook", {
         failureRedirect: "/api/auth/failure",
@@ -44,6 +39,11 @@ router.get(
             .status(200)
             .json({ message: "successfully signed up by FACEBOOK." });
     }
+);
+
+router.get(
+    "/auth/google",
+    passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 router.get(
